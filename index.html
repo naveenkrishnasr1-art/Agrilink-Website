@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgriLink - Intelligent Mandi & Farmer Marketplace</title>
+  <meta name="description" content="AgriLink empowers smallholder farmers and FPOs with AI Price Forecasting and Bulk Buyer Pooling to eliminate price blindness and supply fragmentation.">
+  <link rel="stylesheet" href="styles.css">
+  <!-- Chart.js for High-Fidelity Interactive Price Forecasting Visualizations -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <!-- 1. LIVE MANDI TICKER (TOP CONTINUOUS MARQUEE) -->
+  <header class="ticker-wrap" id="tickerWrap">
+    <div class="ticker-badge">
+      <span class="ticker-pulse"></span> LIVE MANDI APMC
+    </div>
+    <div class="ticker-track" id="tickerTrack">
+      <!-- Dynamically Populated by JavaScript -->
+      <div class="ticker-item">
+        <span>🧅 Lasalgaon Mandi: <strong>₹2,380/Qtl</strong></span>
+        <span class="ticker-change up">▲ +5.3%</span>
+      </div>
+      <div class="ticker-item">
+        <span>🍅 Nashik APMC: <strong>₹1,750/Qtl</strong></span>
+        <span class="ticker-change down">▼ -4.8%</span>
+      </div>
+      <div class="ticker-item">
+        <span>🥔 Pune Mandi: <strong>₹1,440/Qtl</strong></span>
+        <span class="ticker-change up">▲ +2.5%</span>
+      </div>
+      <div class="ticker-item">
+        <span>🧄 Vashi Terminal: <strong>₹9,550/Qtl</strong></span>
+        <span class="ticker-change up">▲ +3.8%</span>
+      </div>
+      <div class="ticker-item">
+        <span>🌱 Indore APMC: <strong>₹4,620/Qtl</strong></span>
+        <span class="ticker-change down">▼ -1.7%</span>
+      </div>
+      <div class="ticker-item">
+        <span>🌾 Azadpur Mandi: <strong>₹2,860/Qtl</strong></span>
+        <span class="ticker-change up">▲ +1.4%</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- 2. MAIN NAVIGATION BAR -->
+  <nav class="navbar" id="mainNavbar">
+    <div class="nav-brand">
+      <div class="brand-icon-wrapper">🌱</div>
+      <div>
+        <div class="brand-title">Agri<span>Link</span></div>
+        <div class="brand-subtitle">Intelligent Mandi & Marketplace</div>
+      </div>
+    </div>
+
+    <!-- Center Navigation Tabs -->
+    <div class="nav-center-tabs">
+      <button class="nav-tab-btn active" data-tab="forecast-tab" id="tabForecastBtn">
+        <span>📊</span> AI Price Forecast
+      </button>
+      <button class="nav-tab-btn" data-tab="pooling-tab" id="tabPoolingBtn">
+        <span>🤝</span> Bulk Buyer Pooling
+      </button>
+      <button class="nav-tab-btn" data-tab="farmer-desk-tab" id="tabFarmerDeskBtn">
+        <span>🌾</span> Farmer Sell Desk
+      </button>
+      <button class="nav-tab-btn" data-tab="contracts-tab" id="tabContractsBtn">
+        <span>📜</span> FPO Logistics
+      </button>
+    </div>
+
+    <!-- Right Actions: Health Probe & Pitch Guide -->
+    <div class="nav-actions">
+      <div class="health-probe-badge live" id="healthProbeBadge" title="Automatic backend connection probe">
+        <span class="status-dot"></span>
+        <span id="healthProbeText">Backend: Live (:8000)</span>
+      </div>
+
+      <button class="btn-pitch-tour" id="btnPitchModalOpen">
+        <span>💡</span> Architecture & Pitch
+      </button>
+    </div>
+  </nav>
+
+  <!-- 3. HERO CALLOUT BANNER -->
+  <section class="hero-container">
+    <div class="hero-card">
+      <div class="hero-left">
+        <div class="hero-tagline">
+          <span>⚡ Next-Gen Agri-Fintech</span> • Empowering 10,000+ Smallholders
+        </div>
+        <h1 class="hero-title">
+          Eliminating <span>Price Blindness</span> & <span>Supply Fragmentation</span>
+        </h1>
+        <p class="hero-desc">
+          AgriLink combines real-time machine learning price forecasting with automated FPO batch pooling, helping farmers sell at optimal market windows and fulfill high-value corporate bulk contracts.
+        </p>
+        <div class="hero-pillars">
+          <div class="pillar-item">
+            <div class="pillar-icon">📈</div>
+            <span>7-Day Predictive Sell/Hold Signals</span>
+          </div>
+          <div class="pillar-item">
+            <div class="pillar-icon">📦</div>
+            <span>Automated B2B Bulk Aggregation</span>
+          </div>
+          <div class="pillar-item">
+            <div class="pillar-icon">💰</div>
+            <span>+18.6% Average Farmer Income Uplift</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-right-metrics">
+        <div class="metric-box">
+          <div class="metric-val" id="heroAccMetric">92.4%</div>
+          <div class="metric-lbl">AI Forecast Accuracy</div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-val" id="heroVolumeMetric">1,420 Qtl</div>
+          <div class="metric-lbl">Pooled Today</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. MAIN CONTENT CONTAINER -->
+  <main class="main-layout">
+
+    <!-- =========================================================
+         TAB 01: MODULE 01 - AI PRICE FORECAST ENGINE
+         ========================================================= -->
+    <section class="tab-content-panel active" id="forecast-tab">
+      <div class="forecast-grid">
+
+        <!-- Left Sidebar: Crop Selector & Gauge Dial Card -->
+        <div class="card card-cream">
+          <div class="card-header-flex">
+            <h2 class="card-title">
+              <span>🎯</span> Market Advisory Dial
+            </h2>
+            <span class="card-badge gold" id="gaugeMandiTag">Nashik APMC</span>
+          </div>
+
+          <!-- Quick Crop Selection Chips -->
+          <div class="crop-select-strip" id="cropSelectStrip">
+            <div class="crop-chip active" data-crop="Onion">
+              <div class="crop-chip-icon">🧅</div>
+              <div class="crop-chip-name">Onion</div>
+              <div class="crop-chip-rate">₹2,350/Qtl</div>
+            </div>
+            <div class="crop-chip" data-crop="Tomato">
+              <div class="crop-chip-icon">🍅</div>
+              <div class="crop-chip-name">Tomato</div>
+              <div class="crop-chip-rate">₹1,780/Qtl</div>
+            </div>
+            <div class="crop-chip" data-crop="Potato">
+              <div class="crop-chip-icon">🥔</div>
+              <div class="crop-chip-name">Potato</div>
+              <div class="crop-chip-rate">₹1,420/Qtl</div>
+            </div>
+            <div class="crop-chip" data-crop="Garlic">
+              <div class="crop-chip-icon">🧄</div>
+              <div class="crop-chip-name">Garlic</div>
+              <div class="crop-chip-rate">₹9,400/Qtl</div>
+            </div>
+            <div class="crop-chip" data-crop="Soybean">
+              <div class="crop-chip-icon">🌱</div>
+              <div class="crop-chip-name">Soybean</div>
+              <div class="crop-chip-rate">₹4,650/Qtl</div>
+            </div>
+            <div class="crop-chip" data-crop="Wheat">
+              <div class="crop-chip-icon">🌾</div>
+              <div class="crop-chip-name">Wheat</div>
+              <div class="crop-chip-rate">₹2,840/Qtl</div>
+            </div>
+          </div>
+
+          <!-- Animated Semi-Circular Gauge Dial -->
+          <div class="gauge-container">
+            <div class="gauge-svg-wrap">
+              <svg viewBox="0 0 200 110" width="100%" height="100%">
+                <defs>
+                  <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#E8A33D" />   <!-- Sell Gold -->
+                    <stop offset="50%" stop-color="#EADBC8" />  <!-- Neutral -->
+                    <stop offset="100%" stop-color="#2F6E4F" /> <!-- Hold Deep Green -->
+                  </linearGradient>
+                </defs>
+                <!-- Outer Arc Track -->
+                <path d="M 20 100 A 80 80 0 0 1 180 100" class="gauge-meter-path" stroke="url(#gaugeGradient)" />
+              </svg>
+              <!-- Animated Needle Arm -->
+              <div class="gauge-needle-arm" id="gaugeNeedleArm"></div>
+              <div class="gauge-needle-hub"></div>
+            </div>
+
+            <div class="gauge-labels">
+              <span class="gauge-lbl-sell">🔴 SELL ZONE</span>
+              <span class="gauge-lbl-hold">🟢 HOLD ZONE</span>
+            </div>
+          </div>
+
+          <!-- Action Advisory Badge -->
+          <div class="action-advisory-box hold" id="actionAdvisoryBox">
+            <div class="advisory-badge" id="advisoryBadgeText">RECOMMENDATION: STRONG HOLD</div>
+            <div class="advisory-subtext" id="advisorySubtext">
+              Lasalgaon mandi arrivals dropped 18.5%. Holding stock for 5-6 days is projected to capture a +₹320/Qtl surge.
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Main Panel: Key Metrics, 21-Day Interactive Forecast Chart, Market Drivers -->
+        <div class="card">
+          <!-- 4 Stats Summary Cards -->
+          <div class="stats-summary-grid">
+            <div class="stat-card">
+              <div class="stat-label">Current Modal Price</div>
+              <div class="stat-value" id="statCurrentPrice">₹2,350</div>
+              <div class="stat-delta" id="statMandiLoc">Lasalgaon APMC Spot</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-label">7-Day Predicted Price</div>
+              <div class="stat-value" id="statForecastPrice" style="color: var(--color-primary-light);">₹2,679</div>
+              <div class="stat-delta positive" id="statPriceDiff">▲ +₹329 / Qtl (+14.0%)</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-label">Model Confidence</div>
+              <div class="stat-value" id="statConfidence" style="color: var(--color-accent-amber);">92.4%</div>
+              <div class="stat-delta">Based on 14-day wave</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-label">Farmer Lot (25 Qtl) Gain</div>
+              <div class="stat-value" id="statLotGain" style="color: var(--color-hold);">+₹8,225</div>
+              <div class="stat-delta positive">Extra earnings by holding</div>
+            </div>
+          </div>
+
+          <!-- Interactive 21-Day Chart -->
+          <div class="card-header-flex" style="margin-bottom: 8px;">
+            <h3 style="font-size: 15px; font-weight: 700; color: var(--color-primary);">
+              📈 14-Day Historical Modal Prices & 7-Day Forward AI Projections
+            </h3>
+            <span style="font-size: 11.5px; color: var(--text-muted);">
+              Dashed line indicates AI forecast band
+            </span>
+          </div>
+
+          <div class="chart-container-box">
+            <canvas id="forecastChartCanvas"></canvas>
+          </div>
+
+          <!-- Market Drivers Rationale -->
+          <div style="margin-top: 14px;">
+            <h4 style="font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 10px;">
+              🔍 Key Market Influencing Drivers
+            </h4>
+            <div class="drivers-grid" id="marketDriversGrid">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- =========================================================
+         TAB 02: MODULE 02 - BULK BUYER POOLING ENGINE
+         ========================================================= -->
+    <section class="tab-content-panel" id="pooling-tab">
+      <div class="pooling-container">
+
+        <!-- Left Controls: Corporate B2B Target Order Builder & Circular Progress Ring -->
+        <div class="card card-cream progress-ring-card">
+          <div class="card-header-flex" style="width: 100%;">
+            <h2 class="card-title">
+              <span>📦</span> Bulk Order Pooling
+            </h2>
+            <span class="card-badge green" id="poolStatusBadge">FULFILLED</span>
+          </div>
+
+          <!-- Order Configuration Inputs -->
+          <div style="width: 100%; margin-bottom: 16px;">
+            <div class="form-row-2">
+              <div class="form-group" style="margin-bottom: 10px;">
+                <label class="form-label">Crop</label>
+                <select class="form-select" id="poolCropSelect">
+                  <option value="Onion">Nashik Red Onion</option>
+                  <option value="Tomato">Hybrid Tomato</option>
+                  <option value="Potato">Pukhraj Potato</option>
+                  <option value="Garlic">Ooty Garlic</option>
+                  <option value="Soybean">Yellow Soybean</option>
+                  <option value="Wheat">Sharbati Wheat</option>
+                </select>
+              </div>
+
+              <div class="form-group" style="margin-bottom: 10px;">
+                <label class="form-label">Target (Quintals)</label>
+                <input type="number" class="form-input" id="poolTargetQtyInput" value="50" min="10" max="500" step="5">
+              </div>
+            </div>
+
+            <button class="btn-primary" id="btnTriggerPooling">
+              <span>⚡</span> Run Smart Aggregation
+            </button>
+          </div>
+
+          <!-- Animated Circular SVG Progress Ring -->
+          <div class="circular-progress-wrap">
+            <svg class="progress-ring-svg">
+              <defs>
+                <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#2F6E4F" />    <!-- Deep Green -->
+                  <stop offset="100%" stop-color="#E8A33D" />  <!-- Harvest Gold -->
+                </linearGradient>
+              </defs>
+              <circle class="progress-ring-bg" cx="100" cy="100" r="90" />
+              <circle class="progress-ring-fill" id="progressRingFill" cx="100" cy="100" r="90" />
+            </svg>
+            <div class="progress-inner-content">
+              <div class="progress-percentage" id="progressPctText">100%</div>
+              <div class="progress-subtext" id="progressRatioText">57.5 / 50 Qtl</div>
+            </div>
+          </div>
+
+          <!-- Pool Financial Summary Pills -->
+          <div class="pool-summary-pills">
+            <div class="summary-pill">
+              <div class="summary-pill-val" id="summaryFarmersCount">7</div>
+              <div class="summary-pill-lbl">Farmers Aggregated</div>
+            </div>
+            <div class="summary-pill">
+              <div class="summary-pill-val" id="summaryContractPayout">₹1.41L</div>
+              <div class="summary-pill-lbl">Total Escrow Value</div>
+            </div>
+            <div class="summary-pill">
+              <div class="summary-pill-val" id="summaryFpoCharge">₹2,118</div>
+              <div class="summary-pill-lbl">FPO Service Fee (1.5%)</div>
+            </div>
+            <div class="summary-pill">
+              <div class="summary-pill-val" id="summaryAvgRadius">28.5 km</div>
+              <div class="summary-pill-lbl">Avg Transit Radius</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Main Panel: Sequential Contributor Farmers List with Soil-Brown Borders -->
+        <div class="card">
+          <div class="farmer-list-header">
+            <div>
+              <h3 style="font-size: 16px; font-weight: 700; color: var(--color-primary);">
+                🌾 Aggregated Farmer Contributors
+              </h3>
+              <p style="font-size: 12px; color: var(--text-muted);">
+                Sequentially clustered across Nashik villages (Chandwad, Yeola, Niphad, Sinnar)
+              </p>
+            </div>
+
+            <button class="btn-gold" id="btnOpenContractModal">
+              <span>📜</span> Issue FPO Dispatch Contract
+            </button>
+          </div>
+
+          <!-- Contributor List -->
+          <div class="farmer-contributors-list" id="farmerContributorsList">
+            <!-- Sequentially Appended with popIn animation via JavaScript -->
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- =========================================================
+         TAB 03: MODULE 03 - FARMER PRODUCE LISTING & SELL DESK
+         ========================================================= -->
+    <section class="tab-content-panel" id="farmer-desk-tab">
+      <div class="farmer-desk-grid">
+
+        <!-- Left Form: Farmer Input Details -->
+        <div class="card card-cream">
+          <div class="card-header-flex">
+            <h2 class="card-title">
+              <span>📝</span> Farmer Produce Registration
+            </h2>
+            <span class="card-badge green">Direct FPO Portal</span>
+          </div>
+
+          <form id="farmerListingForm">
+            <div class="form-group">
+              <label class="form-label" for="farmerNameInput">Farmer Full Name <span>*</span></label>
+              <input type="text" class="form-input" id="farmerNameInput" placeholder="e.g. Rameshwar Patil" required value="Dnyaneshwar Shinde">
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label class="form-label" for="farmerPhoneInput">Mobile Number <span>*</span></label>
+                <input type="tel" class="form-input" id="farmerPhoneInput" placeholder="9823100000" required value="9822194821">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="farmerVillageInput">Village / Tehsil <span>*</span></label>
+                <input type="text" class="form-input" id="farmerVillageInput" placeholder="e.g. Chandwad" required value="Yeola">
+              </div>
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label class="form-label" for="farmerCropSelect">Commodity Crop <span>*</span></label>
+                <select class="form-select" id="farmerCropSelect">
+                  <option value="Onion" selected>Nashik Red Onion</option>
+                  <option value="Tomato">Hybrid Table Tomato</option>
+                  <option value="Potato">Pukhraj Potato</option>
+                  <option value="Garlic">Ooty Garlic</option>
+                  <option value="Soybean">Yellow Soybean</option>
+                  <option value="Wheat">Sharbati Wheat</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="farmerQtyInput">Quantity to Sell <span>*</span></label>
+                <div class="input-with-affix">
+                  <input type="number" class="form-input" id="farmerQtyInput" value="25" min="1" max="1000" step="0.5" required>
+                  <span class="input-affix">Quintals</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label class="form-label" for="farmerGradeSelect">Quality Grade</label>
+                <select class="form-select" id="farmerGradeSelect">
+                  <option value="Grade A Export" selected>Grade A Export (Prime)</option>
+                  <option value="Grade A Mandi">Grade A Mandi Standard</option>
+                  <option value="Grade B">Grade B Domestic Processing</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="farmerTargetPriceInput">Expected Price (Optional)</label>
+                <div class="input-with-affix">
+                  <input type="number" class="form-input" id="farmerTargetPriceInput" placeholder="2400">
+                  <span class="input-affix">₹/Qtl</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Selling Intent Choice -->
+            <label class="form-label">Selling Objective</label>
+            <div class="intent-selector">
+              <div class="intent-chip active" data-intent="POOL">
+                <div class="intent-chip-title">🤝 Join Bulk Pool</div>
+                <div class="intent-chip-desc">+4.5% premium via corporate direct buy</div>
+              </div>
+              <div class="intent-chip" data-intent="AI_HOLD">
+                <div class="intent-chip-title">⏳ AI 7-Day Hold</div>
+                <div class="intent-chip-desc">Wait for projected price surge</div>
+              </div>
+            </div>
+
+            <button type="submit" class="btn-primary" id="btnSubmitFarmerListing">
+              <span>🚀</span> Submit Lot to Marketplace
+            </button>
+          </form>
+        </div>
+
+        <!-- Right Side: Real-Time Farmer AI Profit Projection & Active Farmer Lots Feed -->
+        <div>
+          <!-- Live AI Profit Forecaster Card -->
+          <div class="profit-forecast-card">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <h3 style="font-size: 17px; font-weight: 800; color: #FFFFFF;">
+                  💡 Instant AI Revenue Forecaster
+                </h3>
+                <p style="font-size: 12px; color: #D8F3DC;">
+                  Calculated dynamically for <span id="calcPreviewQty">25</span> Quintals of <span id="calcPreviewCrop">Onion</span>
+                </p>
+              </div>
+              <div style="font-size: 28px;">📊</div>
+            </div>
+
+            <div class="calc-comparison-grid">
+              <div class="calc-box gold">
+                <div style="font-size: 11px; color: #FEF3C7; text-transform: uppercase; font-weight: 700;">
+                  Sell Today at Mandi Spot
+                </div>
+                <div class="calc-box-val" id="calcTodayValue">₹58,750</div>
+                <div style="font-size: 11px; color: #FEF3C7;" id="calcTodayRate">@ ₹2,350/Qtl</div>
+              </div>
+
+              <div class="calc-box green">
+                <div style="font-size: 11px; color: #A7F3D0; text-transform: uppercase; font-weight: 700;">
+                  7-Day Projected / Bulk Pool
+                </div>
+                <div class="calc-box-val" id="calcFutureValue">₹66,975</div>
+                <div style="font-size: 11px; color: #A7F3D0;" id="calcFutureRate">@ ₹2,679/Qtl</div>
+              </div>
+            </div>
+
+            <div class="gain-callout-pill" id="calcGainCallout">
+              <span>🌟</span>
+              <div>
+                <strong>Recommendation:</strong> Holding your stock or pooling with AgriLink yields an extra <strong>+₹8,225 (+14.0%)</strong> in net farmer profit.
+              </div>
+            </div>
+          </div>
+
+          <!-- Recently Registered Farmer Lots -->
+          <div class="card">
+            <div class="card-header-flex">
+              <h3 style="font-size: 15px; font-weight: 700; color: var(--color-primary);">
+                📋 Live Active Farmer Submissions
+              </h3>
+              <span class="card-badge green" id="registeredCountBadge">0 Registered Lots</span>
+            </div>
+
+            <div class="farmer-contributors-list" id="registeredFarmersList" style="max-height: 260px;">
+              <div style="text-align: center; padding: 24px; color: var(--text-muted); font-size: 13px;">
+                Fill the form on the left to submit a farmer produce lot. It will automatically update the Bulk Pooling Engine!
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- =========================================================
+         TAB 04: MODULE 04 - FPO LOGISTICS & SMART CONTRACT TERMINAL
+         ========================================================= -->
+    <section class="tab-content-panel" id="contracts-tab">
+      <div class="card">
+        <div class="card-header-flex">
+          <div>
+            <h2 class="card-title">
+              <span>📜</span> FPO Corporate Smart Contract Terminal
+            </h2>
+            <p style="font-size: 12.5px; color: var(--text-muted);">
+              Automated logistics dispatch manifests, transparent weighbridge settlements, and direct farmer DBT escrow.
+            </p>
+          </div>
+          <button class="btn-gold" onclick="alert('Exporting complete dispatch manifest CSV and weighbridge batch slips!')">
+            <span>📥</span> Export Dispatch Manifest
+          </button>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin: 20px 0;">
+          <div class="stat-card" style="border-left: 4px solid var(--color-primary);">
+            <div class="stat-label">Corporate Buyer</div>
+            <div class="stat-value" style="font-size: 18px;">AgroCorp Exports Ltd.</div>
+            <div class="stat-delta">Verified B2B Procurement Partner</div>
+          </div>
+
+          <div class="stat-card" style="border-left: 4px solid var(--color-accent-gold);">
+            <div class="stat-label">Collection Hub</div>
+            <div class="stat-value" style="font-size: 18px;">Lasalgaon Cold Terminal</div>
+            <div class="stat-delta">Weighbridge Bay #4</div>
+          </div>
+
+          <div class="stat-card" style="border-left: 4px solid var(--color-hold);">
+            <div class="stat-label">Escrow Settlement</div>
+            <div class="stat-value" style="font-size: 18px;">48-Hr DBT Direct</div>
+            <div class="stat-delta positive">Zero Middlemen Deduction</div>
+          </div>
+        </div>
+
+        <div style="background: #F8FAFC; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 20px;">
+          <h4 style="font-size: 14px; font-weight: 700; margin-bottom: 10px; color: var(--text-main);">
+            🚚 Optimized Collection Route Plan
+          </h4>
+          <div style="display: flex; gap: 12px; flex-wrap: wrap; font-size: 12.5px;">
+            <span style="background: #FFFFFF; border: 1px solid var(--border-light); padding: 6px 12px; border-radius: 6px;">
+              📍 <strong>Stop 1:</strong> Chandwad (14.5 Qtl) - ETA 08:30 AM
+            </span>
+            <span style="background: #FFFFFF; border: 1px solid var(--border-light); padding: 6px 12px; border-radius: 6px;">
+              📍 <strong>Stop 2:</strong> Yeola (18.0 Qtl) - ETA 09:45 AM
+            </span>
+            <span style="background: #FFFFFF; border: 1px solid var(--border-light); padding: 6px 12px; border-radius: 6px;">
+              📍 <strong>Stop 3:</strong> Niphad (12.0 Qtl) - ETA 11:00 AM
+            </span>
+            <span style="background: #FFFFFF; border: 1px solid var(--border-light); padding: 6px 12px; border-radius: 6px;">
+              🏁 <strong>Destination:</strong> Lasalgaon Central Hub - ETA 01:15 PM
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 5. MODAL: DIGITAL FARMER LOT RECEIPT / QR TOKEN -->
+  <div class="modal-backdrop" id="receiptModal">
+    <div class="modal-dialog">
+      <button class="modal-close-btn" id="closeReceiptModalBtn">&times;</button>
+      
+      <div class="receipt-header">
+        <div class="receipt-stamp">✓</div>
+        <h3 style="font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 800; color: var(--color-primary);">
+          Produce Lot Confirmed
+        </h3>
+        <p style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">
+          AgriLink Verified Farmer Receipt & Dispatch Token
+        </p>
+      </div>
+
+      <div class="receipt-details-list" id="receiptDetailsList">
+        <!-- Dynamically injected -->
+      </div>
+
+      <div style="background: #F1F5F9; border-radius: var(--radius-md); padding: 14px; text-align: center; margin-bottom: 18px;">
+        <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">
+          Digital QR Verification Passcode
+        </div>
+        <div style="font-family: monospace; font-size: 18px; font-weight: 700; color: var(--color-primary); margin-top: 4px;" id="receiptQrCode">
+          AGRI-TOKEN-883921
+        </div>
+      </div>
+
+      <button class="btn-primary" onclick="window.print()">
+        <span>🖨️</span> Print / Save Receipt
+      </button>
+    </div>
+  </div>
+
+  <!-- 6. MODAL: FPO CORPORATE DISPATCH CONTRACT -->
+  <div class="modal-backdrop" id="contractModal">
+    <div class="modal-dialog" style="max-width: 580px;">
+      <button class="modal-close-btn" id="closeContractModalBtn">&times;</button>
+      
+      <div class="receipt-header">
+        <div class="receipt-stamp" style="background: #FEF3C7; color: var(--color-accent-amber);">📜</div>
+        <h3 style="font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 800; color: var(--color-primary);">
+          FPO Digital Batch Contract
+        </h3>
+        <p style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">
+          Legally binding smart agreement between FPO and Corporate Buyer
+        </p>
+      </div>
+
+      <div class="receipt-details-list" id="contractModalDetails">
+        <!-- Populated via JS -->
+      </div>
+
+      <button class="btn-primary" id="btnConfirmContractCommit">
+        <span>✍️</span> Commit Contract & Lock Escrow
+      </button>
+    </div>
+  </div>
+
+  <!-- 7. MODAL: ARCHITECTURE & HACKATHON PITCH GUIDE -->
+  <div class="modal-backdrop" id="pitchModal">
+    <div class="modal-dialog" style="max-width: 680px;">
+      <button class="modal-close-btn" id="closePitchModalBtn">&times;</button>
+      
+      <h3 style="font-family: 'Outfit', sans-serif; font-size: 22px; font-weight: 800; color: var(--color-primary); margin-bottom: 12px;">
+        🌾 What is AgriLink? (Architecture & Pitch)
+      </h3>
+
+      <div style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.6; display: flex; flex-direction: column; gap: 14px;">
+        <div style="background: var(--color-primary-soft); padding: 14px; border-radius: var(--radius-md); border-left: 4px solid var(--color-primary);">
+          <strong>3-Sentence Pitch:</strong> "AgriLink is split into a Python FastAPI backend and a responsive, modern frontend. The backend hosts endpoints that run predictive price forecasting and batch-pooling algorithms for FPOs. The frontend interacts with these endpoints in real time, displaying dynamic data visualizations, gauges, and progressive aggregation metrics that empower farmers to make data-driven selling decisions."
+        </div>
+
+        <div>
+          <h4 style="font-size: 14px; font-weight: 700; color: var(--text-main);">🏗️ Technical Architecture</h4>
+          <p>
+            • <strong>Backend (`main.py`):</strong> FastAPI + Uvicorn server providing endpoints (`/health`, `/api/price-prediction`, `/api/marketplace/pool`, `/api/farmer/listing`, `/api/mandi-ticker`). CORS enabled.<br>
+            • <strong>Frontend (`index.html`, `styles.css`, `app.js`):</strong> Real-time Chart.js rendering, SVG gauge needle rotation, SVG circular progress fill, and automated health probe with seamless offline simulation fallback.
+          </p>
+        </div>
+
+        <div>
+          <h4 style="font-size: 14px; font-weight: 700; color: var(--text-main);">🎨 Color Code Specifications</h4>
+          <p>
+            • <strong>SELL indicator:</strong> Harvest Gold (<code>#E8A33D</code>)<br>
+            • <strong>HOLD indicator:</strong> Deep Green (<code>#2F6E4F</code>)<br>
+            • <strong>Gauge & Card background:</strong> Soft Cream (<code>#FAF8F5</code> / <code>#FBF7EF</code>)<br>
+            • <strong>Contributor row borders:</strong> Soil Brown (<code>#8B5E3C</code>)<br>
+            • <strong>Live Mandi Ticker:</strong> Green (<code>#10B981</code>) & Red (<code>#EF4444</code>)
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toastNotification">
+    <span id="toastIcon">🌾</span>
+    <span id="toastMsg">Action completed successfully</span>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div>
+      <strong>AgriLink Platform</strong> • Built with FastAPI, Uvicorn & Modern Web Standards • Dedicated to Indian Farmers & FPOs
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
